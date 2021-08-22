@@ -3,6 +3,7 @@ const http = require('http')
 const path = require('path')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
+const { generateMessage, generateLocation } = require('../utils/messages')
 
 const app = express()
 const server = http.createServer(app)
@@ -10,19 +11,19 @@ const io = socketio(server)
 const filter = new Filter()
 
 io.on("connection", (socket) => {
-    socket.emit('message', "Hello")
-    socket.broadcast.emit("message", "A new user has joined.")
-    socket.on('sendMessage', (msg, callback) => {
-        if (filter.isProfane(msg))
+    socket.emit('message', generateMessage("Hello"))
+    socket.broadcast.emit("message", generateMessage("A new user has joined."))
+    socket.on('sendMessage', (message, callback) => {
+        if (filter.isProfane(message))
             return callback("Try to be nice")
-        io.emit('message', msg)
+        io.emit('message', generateMessage(message))
         callback()
     })
     socket.on("disconnect", () => {
-        io.emit('message', "A user has left the chat")
+        io.emit('message', generateMessage("A user has left the chat"))
     })
     socket.on("sendLocation", (location, callback) => {
-        io.emit("locationMessage", `https://www.google.com/maps/search/${location.lat},+${location.long}`)
+        io.emit("locationMessage", generateLocation(location))
         callback()
     })
 })
