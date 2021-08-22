@@ -11,21 +11,28 @@ const io = socketio(server)
 const filter = new Filter()
 
 io.on("connection", (socket) => {
-    socket.emit('message', generateMessage("Hello"))
-    socket.broadcast.emit("message", generateMessage("A new user has joined."))
-    socket.on('sendMessage', (message, callback) => {
-        if (filter.isProfane(message))
-            return callback("Try to be nice")
-        io.emit('message', generateMessage(message))
-        callback()
+    socket.on('join', ({ username, room }) => {
+        socket.join(room)
+        socket.emit('message', generateMessage(`Welcome to ${room} room`))
+        socket.broadcast.to(room).emit("message", generateMessage(`${username} has joined the room!`))
+
+
+        socket.on('sendMessage', (message, callback) => {
+            if (filter.isProfane(message))
+                return callback("Try to be nice")
+            io.to(room).emit('message', generateMessage(message, username))
+            callback()
+        })
+        socket.on("disconnect", () => {
+            io.to(room).emit('message', generateMessage("A user has left the chat"))
+        })
+        socket.on("sendLocation", (location, callback) => {
+            io.to(room).emit("locationMessage", generateLocation(location, username))
+            callback()
+        })
+
     })
-    socket.on("disconnect", () => {
-        io.emit('message', generateMessage("A user has left the chat"))
-    })
-    socket.on("sendLocation", (location, callback) => {
-        io.emit("locationMessage", generateLocation(location))
-        callback()
-    })
+
 })
 
 const port = process.env.PORT || 3000
