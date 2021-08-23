@@ -10,29 +10,56 @@ const $message = document.querySelector("#message")
 // Templates
 const messageTemplate = document.querySelector("#message-template").innerHTML
 const locationTemplate = document.querySelector("#location-template").innerHTML
+const sidebarTemplate = document.querySelector("#sidebar-template").innerHTML
 
 // Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 
+const autoscroll = () => {
+
+    // Getting the most recent message
+    const $newMessage = $message.lastElementChild
+
+    // Get its height
+    const newMessageStyles = getComputedStyle($newMessage)
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom)
+    const newMessageHeight = $newMessage.offsetHeight + newMessageMargin
+
+    // Visible Height
+    const visibleHeight = $message.offsetHeight
+
+    //Container height
+    const containerHeight = $message.scrollHeight
+    const scrollHeight = $message.scrollTop + visibleHeight
+
+    if (containerHeight - newMessageHeight <= scrollHeight) {
+        $message.scrollTop = $message.scrollHeight
+    }
+}
+
 // Sockets listeners
 socket.on("message", message => { // Chat Messages
-    console.log(message)
     const html = Mustache.render(messageTemplate, {
         message: message.text,
         createdAt: moment(message.createdAt).format('H:mm A'),
-        username
+        username: message.username
+    })
+    $message.insertAdjacentHTML('beforeend', html)
+    autoscroll()
+})
+
+socket.on('locationMessage', location => { // Location Messages
+    const html = Mustache.render(locationTemplate, {
+        url: location.url,
+        createdAt: moment(location.createdAt).format('H:mm A'),
+        username: location.username
     })
     $message.insertAdjacentHTML('beforeend', html)
 })
 
-socket.on('locationMessage', location => { // Location Messages
-    console.log(location)
-    const html = Mustache.render(locationTemplate, {
-        url: location.url,
-        createdAt: moment(location.createdAt).format('H:mm A'),
-        username
-    })
-    $message.insertAdjacentHTML('beforeend', html)
+socket.on('roomData', (roomData) => {
+    const html = Mustache.render(sidebarTemplate, {...roomData })
+    document.querySelector("#sidebar").innerHTML = html
 })
 
 
@@ -62,9 +89,13 @@ $locationBtn.addEventListener('click', () => { // Send location
     navigator.geolocation.getCurrentPosition(location => {
         socket.emit("sendLocation", { long: location.coords.longitude, lat: location.coords.latitude }, () => {
             $locationBtn.removeAttribute('disabled')
-            console.log("Location Shared!")
         })
     })
 })
 
-socket.emit('join', { username, room }) //send the server the user's info
+socket.emit('join', { username, room }, (error) => {
+        if (error) {
+            alert(error)
+            location.href = '/'
+        }
+    }) //send the server the user's info

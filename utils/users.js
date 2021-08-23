@@ -12,13 +12,13 @@ const addUser = ({ id, username, room }) => {
         room = room.trim().toLowerCase()
 
         // Check if user already exists in the room.
-        const existUser = users.find((user) => user.username === username && user.room === room)
+        const existUser = users.find((user) => { return user.username === username && user.room === room })
         if (existUser)
             return { error: `The username "${username}" already exists in the room. Try another one.` }
 
         const user = { id, username, room }
         users.push(user)
-        return user
+        return { user }
 
     }
     // Remove User
@@ -27,21 +27,20 @@ const removeUser = (id) => {
     if (index !== -1)
         return users.splice(index, 1)[0]
 }
-addUser({
-    id: 1,
-    username: "ida",
-    room: "id"
-})
-console.log(users)
-addUser({
-    id: 2,
-    username: "iDa",
-    room: "id"
-})
-addUser({
-    id: 1,
-    username: "",
-    room: ""
-})
-removeUser(1)
-console.log(users)
+
+// Get User
+
+const getUser = id => {
+    const user = users.find(user => user.id === id)
+    if (user)
+        return user
+    else
+        return { error: "User not exists" }
+}
+
+const getUsersInRoom = room => {
+    const roomUsers = users.filter(user => user.room === room)
+    return roomUsers
+}
+
+module.exports = { addUser, removeUser, getUser, getUsersInRoom, users }
