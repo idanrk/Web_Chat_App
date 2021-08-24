@@ -7,5 +7,8 @@
 *  You can test the code using: `npm test`
 
 * The chat is live on: https://chat-app-idan.herokuapp.com/
+* TODO: Add active room list in the homepage.
+---
+
 
 ![alt text](https://github.com/idanrk/Web_Chat_App/blob/main/readme_display/Display.PNG "Chat app display")
