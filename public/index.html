@@ -8,21 +8,40 @@
     <title>Chat app</title>
     <link rel="shortcut icon" href="./img/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="./css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js" defer></script>
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="js/index.js" defer></script>
 </head>
 
 <body>
     <div class="centered-form">
         <div class="centered-form__box">
             <h1>Join</h1>
-            <form action="./chat.html">
+            <form id="form-data" action="./chat.html">
                 <label>Display name</label>
                 <input type="text" name="username" placeholder="Username" required>
                 <label>Room</label>
-                <input type="text" name="room" placeholder="Room" required>
+                <input type="text" name="room" id="room" placeholder="Room" required>
                 <button>Join!</button>
+                <div id="liveRooms">
+                    <div id="noLive">
+                        <p>There are no live rooms right now..<br> Be the first one to create a Room!</p>
+                    </div>
+                    <div id="currentLive">
+                    </div>
+                </div>
             </form>
         </div>
     </div>
+    <script id="live-rooms-template" type="text/html">
+        <label for="rooms">Choose a room:</label>
+        <select name="rooms" id="roomsSelect" onchange="select();">
+            <option value="">--- View rooms ---</option>    
+            {{#rooms}}
+                <option value="{{room}}" id="roomOption">{{room}} ({{people}} Online!)</option>
+                {{/rooms}}
+            </select>
+    </script>
 </body>
 
 </html>

@@ -1,4 +1,4 @@
-const { addUser, removeUser, getUser, getUsersInRoom, users } = require('../utils/users')
+const { addUser, removeUser, getUser, getUsersInRoom, getRooms, users } = require('../utils/users')
 
 
 beforeEach(() => {
@@ -56,4 +56,11 @@ test('Should 3 users from "test" room', () => {
 test('Should 0 users from empty room', () => {
     const usersInRoom = getUsersInRoom("null")
     expect(usersInRoom.length).toBe(0)
+})
+
+// Get rooms list
+
+test('Should get rooms list', () => {
+    const rooms = getRooms()
+    expect(rooms).not.toEqual({})
 })

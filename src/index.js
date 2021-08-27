@@ -4,7 +4,7 @@ const path = require('path')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
 const { generateMessage, generateLocation } = require('../utils/messages')
-const { addUser, removeUser, getUser, getUsersInRoom, users } = require('../utils/users')
+const { addUser, removeUser, getUser, getUsersInRoom, getRooms, users } = require('../utils/users')
 
 const app = express()
 const server = http.createServer(app)
@@ -12,6 +12,9 @@ const io = socketio(server)
 const filter = new Filter()
 
 io.on("connection", (socket) => {
+    socket.on('indexRooms', callback => {
+        return callback(getRooms())
+    })
     socket.on('join', ({ username, room }, callback) => {
         const { error, user } = addUser({ id: socket.id, username, room })
         if (error)

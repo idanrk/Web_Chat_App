@@ -43,4 +43,18 @@ const getUsersInRoom = room => {
     return roomUsers
 }
 
-module.exports = { addUser, removeUser, getUser, getUsersInRoom, users }
+const getRooms = () => {
+    const rooms_counter = {}
+    users.forEach(user => {
+        if (!rooms_counter[user.room])
+            rooms_counter[user.room] = 1
+        else
+            rooms_counter[user.room] += 1
+    })
+    const rooms = []
+    for (const [key, value] of Object.entries(rooms_counter)) {
+        rooms.push({ room: key, people: value })
+    }
+    return { rooms }
+}
+module.exports = { addUser, removeUser, getUser, getUsersInRoom, getRooms, users }
